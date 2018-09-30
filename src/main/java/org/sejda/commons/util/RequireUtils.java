@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Sober Lemur S.a.s. di Vacondio Andrea
+ * Copyright 2018 Sober Lemur S.a.s. di Vacondio Andrea and Sejda BV
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,9 +36,7 @@ public final class RequireUtils {
      * @param exceptionMessage
      */
     public static void requireNotNullArg(Object arg, String exceptionMessage) {
-        if (arg == null) {
-            throw new IllegalArgumentException(exceptionMessage);
-        }
+        requireArg(arg != null, exceptionMessage);
     }
 
     /**
@@ -87,6 +85,17 @@ public final class RequireUtils {
     public static void requireState(boolean condition, String exceptionMessage) {
         if (!condition) {
             throw new IllegalStateException(exceptionMessage);
+        }
+    }
+
+    /**
+     * throws an {@link IllegalArgumentException} if the input value is a negative integer
+     * 
+     * @param victim
+     */
+    public static void requireNotNegative(int victim) {
+        if (victim < 0) {
+            throw new IllegalArgumentException("The given value cannot be negative");
         }
     }
 }
