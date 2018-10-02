@@ -68,14 +68,14 @@ public class CircularLinkedList<E> extends LinkedList<E> {
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
-        var ret = super.addAll(c);
+        boolean ret = super.addAll(c);
         houseKeep();
         return ret;
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
-        var ret = super.addAll(index, c);
+        boolean ret = super.addAll(index, c);
         houseKeep();
         return ret;
     }
