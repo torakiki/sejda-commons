@@ -46,8 +46,8 @@ public class EitherTest {
     @Test
     public void either() {
         Either<String, Integer> victim = Either.left("12");
-        assertEquals(15, victim.either(s -> Integer.parseInt(s) + 3, i -> i + 3));
+        assertEquals(15, (int) victim.either(s -> Integer.parseInt(s) + 3, i -> i + 3));
         victim = Either.right(12);
-        assertEquals(15, victim.either(s -> Integer.parseInt(s) + 3, i -> i + 3));
+        assertEquals(15, (int) victim.either(s -> Integer.parseInt(s) + 3, i -> i + 3));
     }
 }
