@@ -15,13 +15,14 @@
  */
 package org.sejda.commons;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andrea Vacondio
@@ -30,7 +31,7 @@ import org.junit.Test;
 public class LookupTableTest {
     private LookupTable<String> victim;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         victim = new LookupTable<>();
     }
@@ -44,14 +45,18 @@ public class LookupTableTest {
         assertTrue(victim.isEmpty());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void nullFirst() {
-        victim.addLookupEntry(null, "not null");
+        assertThrows(IllegalArgumentException.class, () -> {
+            victim.addLookupEntry(null, "not null");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void nullSecond() {
-        victim.addLookupEntry("not null", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            victim.addLookupEntry("not null", null);
+        });
     }
 
     @Test

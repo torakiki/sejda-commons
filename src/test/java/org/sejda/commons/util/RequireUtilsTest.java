@@ -15,6 +15,7 @@
  */
 package org.sejda.commons.util;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.sejda.commons.util.RequireUtils.requireArg;
 import static org.sejda.commons.util.RequireUtils.requireIOCondition;
 import static org.sejda.commons.util.RequireUtils.requireNotBlank;
@@ -23,7 +24,7 @@ import static org.sejda.commons.util.RequireUtils.requireState;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andrea Vacondio
@@ -31,39 +32,59 @@ import org.junit.Test;
  */
 public class RequireUtilsTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void nullArg() {
-        requireNotNullArg(null, "message");
+        assertThrows(IllegalArgumentException.class, () -> {
+            requireNotNullArg(null, "message");
+        }, "message");
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void falseConditionArg() {
-        requireArg(false, "message");
+        assertThrows(IllegalArgumentException.class, () -> {
+            requireArg(false, "message");
+        }, "message");
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void nullArgNotBlank() {
-        requireNotBlank(null, "message");
+        assertThrows(IllegalArgumentException.class, () -> {
+            requireNotBlank(null, "message");
+        }, "message");
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void emptyArgNotBlank() {
-        requireNotBlank("", "message");
+        assertThrows(IllegalArgumentException.class, () -> {
+            requireNotBlank("", "message");
+        }, "message");
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void blankArgNotBlank() {
-        requireNotBlank(" ", "message");
+        assertThrows(IllegalArgumentException.class, () -> {
+            requireNotBlank(" ", "message");
+        }, "message");
+
     }
 
-    @Test(expected = IOException.class)
-    public void faseConditionIO() throws IOException {
-        requireIOCondition(false, "message");
+    @Test
+    public void faseConditionIO() {
+        assertThrows(IOException.class, () -> {
+            requireIOCondition(false, "message");
+        }, "message");
+
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void falseState() {
-        requireState(false, "message");
+        assertThrows(IllegalStateException.class, () -> {
+            requireState(false, "message");
+        }, "message");
     }
 
     @Test

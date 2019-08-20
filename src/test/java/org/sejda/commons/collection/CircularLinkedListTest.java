@@ -15,13 +15,14 @@
  */
 package org.sejda.commons.collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andrea Vacondio
@@ -29,9 +30,11 @@ import org.junit.Test;
  */
 public class CircularLinkedListTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void wrongCapacity() {
-        new CircularLinkedList<>(0);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new CircularLinkedList<>(0);
+        });
     }
 
     @Test

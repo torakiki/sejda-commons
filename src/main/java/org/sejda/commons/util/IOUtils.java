@@ -70,9 +70,16 @@ public final class IOUtils {
      * @throws IOException
      */
     public static byte[] toByteArray(InputStream input) throws IOException {
-        FastByteArrayOutputStream output = new FastByteArrayOutputStream();
-        input.transferTo(output);
-        return output.toByteArray();
+        try (FastByteArrayOutputStream output = new FastByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = input.read(buffer, 0, 8192)) >= 0) {
+                output.write(buffer, 0, read);
+            }
+            // java9
+            // input.transferTo(output);
+            return output.toByteArray();
+        }
     }
 
 }

@@ -15,8 +15,9 @@
  */
 package org.sejda.commons;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -25,34 +26,31 @@ import static org.mockito.Mockito.when;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sejda.commons.Pool;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andrea Vacondio
  *
  */
-public class PoolTest
-{
+public class PoolTest {
     private Supplier<Object> creator;
 
-    @Before
-    public void setUp()
-    {
+    @BeforeEach
+    public void setUp() {
         creator = mock(Supplier.class);
         when(creator.get()).thenReturn(new Object());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void nullCreator()
-    {
-        new Pool(null, 10);
+    @Test
+    public void nullCreator() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Pool<String>(null, 10);
+        });
     }
 
     @Test
-    public void creatorIsCalled()
-    {
+    public void creatorIsCalled() {
         Pool<Object> victim = new Pool<>(creator, 10);
         verify(creator, never()).get();
         victim.borrow();
@@ -60,8 +58,7 @@ public class PoolTest
     }
 
     @Test
-    public void objectIsPooledCalled()
-    {
+    public void objectIsPooledCalled() {
         Pool<Object> victim = new Pool<>(() -> new Object(), 1);
         Object entry = victim.borrow();
         Object entry2 = victim.borrow();
@@ -71,8 +68,7 @@ public class PoolTest
     }
 
     @Test
-    public void outOfBoundsObjectIsNotPooled()
-    {
+    public void outOfBoundsObjectIsNotPooled() {
         Pool<Object> victim = new Pool<>(() -> new Object(), 1);
         Object entry = victim.borrow();
         Object entry2 = victim.borrow();
@@ -83,8 +79,7 @@ public class PoolTest
     }
 
     @Test
-    public void onGiveHit()
-    {
+    public void onGiveHit() {
         Consumer<Object> onGive = mock(Consumer.class);
         Pool<Object> victim = new Pool<>(() -> new Object(), 1).onGive(onGive);
         Object entry = victim.borrow();
