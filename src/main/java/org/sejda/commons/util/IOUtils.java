@@ -16,10 +16,12 @@
 package org.sejda.commons.util;
 
 import static java.util.Objects.nonNull;
+import static org.sejda.commons.util.RequireUtils.requireNotNullArg;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.sejda.commons.FastByteArrayOutputStream;
 import org.slf4j.Logger;
@@ -71,15 +73,27 @@ public final class IOUtils {
      */
     public static byte[] toByteArray(InputStream input) throws IOException {
         try (FastByteArrayOutputStream output = new FastByteArrayOutputStream()) {
-            byte[] buffer = new byte[8192];
-            int read;
-            while ((read = input.read(buffer, 0, 8192)) >= 0) {
-                output.write(buffer, 0, read);
-            }
+            copy(input, output);
             // java9
             // input.transferTo(output);
             return output.toByteArray();
         }
     }
 
+    /**
+     * Copy the input stream data to the output stream
+     * 
+     * @param input
+     * @param output
+     * @throws IOException
+     */
+    public static void copy(InputStream input, OutputStream output) throws IOException {
+        requireNotNullArg(input, "Cannot copy a null input");
+        requireNotNullArg(output, "Cannot copy to a null output");
+        byte[] buffer = new byte[8192];
+        int read;
+        while ((read = input.read(buffer, 0, 8192)) >= 0) {
+            output.write(buffer, 0, read);
+        }
+    }
 }
