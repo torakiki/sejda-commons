@@ -16,6 +16,7 @@
 package org.sejda.commons.util;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.sejda.commons.util.RequireUtils.require;
 import static org.sejda.commons.util.RequireUtils.requireArg;
 import static org.sejda.commons.util.RequireUtils.requireIOCondition;
 import static org.sejda.commons.util.RequireUtils.requireNotBlank;
@@ -94,5 +95,19 @@ public class RequireUtilsTest {
         requireNotBlank("ChuckNorris", "message");
         requireIOCondition(true, "message");
         requireState(true, "message");
+    }
+
+    @Test
+    public void requireRuntimeException() {
+        assertThrows(RuntimeException.class, () -> {
+            require(false, () -> new RuntimeException("message"));
+        }, "message");
+    }
+
+    @Test
+    public void requireCheckedException() {
+        assertThrows(IOException.class, () -> {
+            require(false, () -> new IOException("message"));
+        }, "message");
     }
 }

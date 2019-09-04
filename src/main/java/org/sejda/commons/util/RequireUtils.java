@@ -15,7 +15,10 @@
  */
 package org.sejda.commons.util;
 
+import static java.util.Objects.nonNull;
+
 import java.io.IOException;
+import java.util.function.Supplier;
 
 /**
  * Utility methods to check parameters and conditions validity.
@@ -36,7 +39,7 @@ public final class RequireUtils {
      * @param exceptionMessage
      */
     public static void requireNotNullArg(Object arg, String exceptionMessage) {
-        requireArg(arg != null, exceptionMessage);
+        requireArg(nonNull(arg), exceptionMessage);
     }
 
     /**
@@ -96,6 +99,19 @@ public final class RequireUtils {
     public static void requireNotNegative(int victim) {
         if (victim < 0) {
             throw new IllegalArgumentException("The given value cannot be negative");
+        }
+    }
+
+    /**
+     * Throws the Exception supplied by the supplier in case the condition is not met
+     * 
+     * @param condition
+     * @param supplier
+     * @throws Exception
+     */
+    public static void require(boolean condition, Supplier<? extends Exception> supplier) throws Exception {
+        if (!condition) {
+            throw supplier.get();
         }
     }
 }
