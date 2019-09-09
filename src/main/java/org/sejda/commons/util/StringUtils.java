@@ -15,6 +15,8 @@
  */
 package org.sejda.commons.util;
 
+import static java.util.Objects.nonNull;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,5 +46,18 @@ public class StringUtils {
      */
     public static Set<Character> difference(String s1, String s2) {
         return s1.codePoints().filter(c -> s2.indexOf(c) < 0).mapToObj(c -> (char) c).collect(Collectors.toSet());
+    }
+
+    public static String asUnicodes(String in) {
+        if (nonNull(in)) {
+            StringBuilder result = new StringBuilder();
+            for (int offset = 0; offset < in.length();) {
+                int codepoint = in.codePointAt(offset);
+                result.append("\\U+").append(Integer.toHexString(codepoint).toUpperCase());
+                offset += Character.charCount(codepoint);
+            }
+            return result.toString();
+        }
+        return null;
     }
 }

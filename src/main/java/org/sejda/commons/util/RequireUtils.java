@@ -92,7 +92,7 @@ public final class RequireUtils {
     }
 
     /**
-     * throws an {@link IllegalArgumentException} if the input value is a negative integer
+     * Throws an {@link IllegalArgumentException} if the input value is a negative integer
      * 
      * @param victim
      */
@@ -109,7 +109,7 @@ public final class RequireUtils {
      * @param supplier
      * @throws Exception
      */
-    public static void require(boolean condition, Supplier<? extends Exception> supplier) throws Exception {
+    public static <E extends Throwable> void require(boolean condition, Supplier<? extends E> supplier) throws E {
         if (!condition) {
             throw supplier.get();
         }

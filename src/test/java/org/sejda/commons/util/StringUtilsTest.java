@@ -32,4 +32,9 @@ public class StringUtilsTest {
     public void doesNotReplaceMultipleWhitespaceWithOne() {
         assertEquals("T  H", StringUtils.normalizeWhitespace("T  H"));
     }
+
+    @Test
+    public void asUnicodes() {
+        assertEquals("\\U+20\\U+E6\\U+65\\U+5EA", StringUtils.asUnicodes(" æeת"));
+    }
 }
