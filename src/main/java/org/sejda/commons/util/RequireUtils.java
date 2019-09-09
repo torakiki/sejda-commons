@@ -107,7 +107,7 @@ public final class RequireUtils {
      * 
      * @param condition
      * @param supplier
-     * @throws Exception
+     * @throws Throwable
      */
     public static <E extends Throwable> void require(boolean condition, Supplier<? extends E> supplier) throws E {
         if (!condition) {
