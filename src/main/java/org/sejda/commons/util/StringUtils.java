@@ -15,6 +15,7 @@
  */
 package org.sejda.commons.util;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.Set;
@@ -59,5 +60,13 @@ public class StringUtils {
             return result.toString();
         }
         return null;
+    }
+
+    public static boolean isEmpty(final CharSequence cs) {
+        return isNull(cs) || cs.length() == 0;
+    }
+
+    public static boolean isNotEmpty(final CharSequence cs) {
+        return !isEmpty(cs);
     }
 }

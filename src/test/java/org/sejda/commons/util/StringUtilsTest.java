@@ -1,7 +1,9 @@
 package org.sejda.commons.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -36,5 +38,23 @@ public class StringUtilsTest {
     @Test
     public void asUnicodes() {
         assertEquals("\\U+20\\U+E6\\U+65\\U+5EA", StringUtils.asUnicodes(" æeת"));
+    }
+
+    @Test
+    public void isEmpty() {
+        assertTrue(StringUtils.isEmpty(null));
+        assertTrue(StringUtils.isEmpty(""));
+        assertFalse(StringUtils.isEmpty(" "));
+        assertFalse(StringUtils.isEmpty("Chuck"));
+        assertFalse(StringUtils.isEmpty("  Chuck  "));
+    }
+
+    @Test
+    public void isNotEmpty() {
+        assertFalse(StringUtils.isNotEmpty(null));
+        assertFalse(StringUtils.isNotEmpty(""));
+        assertTrue(StringUtils.isNotEmpty(" "));
+        assertTrue(StringUtils.isNotEmpty("Chuck"));
+        assertTrue(StringUtils.isNotEmpty("  Chuck  "));
     }
 }
