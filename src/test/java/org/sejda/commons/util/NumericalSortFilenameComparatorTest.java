@@ -73,5 +73,6 @@ public class NumericalSortFilenameComparatorTest {
         assertTrue(victim.compare(new File("20 bla 1.pdf"), new File("20 bla 5.pdf")) < 0);
         assertTrue(victim.compare(new File("banana.pdf"), new File("avocado.pdf")) > 0);
         assertTrue(victim.compare(new File("chuck.pdf"), new File("chuck.abc")) > 0);
+        assertTrue(victim.compare(new File("1234file.pdf"), new File("chuck.abc")) < 0);
     }
 }

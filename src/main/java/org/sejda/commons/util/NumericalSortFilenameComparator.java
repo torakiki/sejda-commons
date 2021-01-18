@@ -19,6 +19,8 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsLast;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
+import static org.sejda.commons.util.StringUtils.isEmpty;
+import static org.sejda.commons.util.StringUtils.isNotEmpty;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -52,7 +54,7 @@ public class NumericalSortFilenameComparator implements Comparator<File> {
     };
 
     private static Comparator<String> STRING_COMPARATOR = (a, b) -> {
-        if (StringUtils.isNotEmpty(a) && StringUtils.isNotEmpty(b)) {
+        if (isNotEmpty(a) && isNotEmpty(b)) {
             return a.compareToIgnoreCase(b);
         }
         return 0;
@@ -95,12 +97,19 @@ public class NumericalSortFilenameComparator implements Comparator<File> {
 
     @Override
     public int compare(File a, File b) {
-        Matcher matcherA = ofNullable(a).map(NumericalSortFilenameComparator::basename).map(PATTERN::matcher)
+        Matcher m1 = ofNullable(a).map(NumericalSortFilenameComparator::basename).map(PATTERN::matcher)
                 .filter(Matcher::matches).orElse(null);
-        Matcher matcherB = ofNullable(b).map(NumericalSortFilenameComparator::basename).map(PATTERN::matcher)
+        Matcher m2 = ofNullable(b).map(NumericalSortFilenameComparator::basename).map(PATTERN::matcher)
                 .filter(Matcher::matches).orElse(null);
-        int retVal = nullsLast(MATCHER_COMPARATOR).compare(matcherA, matcherB);
+
+        if (nonNull(m1) && nonNull(m2) && (isEmpty(m1.group(1)) ^ isEmpty(m2.group(1)))) {
+            // one start with digits the other doesn't, we can just go with the fallback
+            return fallback.compare(a, b);
+        }
+
+        int retVal = nullsLast(MATCHER_COMPARATOR).compare(m1, m2);
         if (retVal == 0) {
+            // from the numerical sort of point of view they are equivalent (ex. 001banana.pdf and 1banana.pdf)
             return fallback.compare(a, b);
         }
         return retVal;
