@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Sober Lemur S.a.s. di Vacondio Andrea and Sejda BV
+ * Copyright 2018 Sober Lemur S.a.s. di Vacondio Andrea and Sejda BV
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,51 +15,95 @@
  */
 package org.sejda.commons.util;
 
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.nullsLast;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 
 import java.io.File;
 import java.math.BigInteger;
 import java.util.Comparator;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * Comparator for filenames that performs a numerical sort if the file names start with digits, returns 0 in any other case.
+ * Comparator for filenames that performs a numerical sort if the file names start or end with digits. It allows to specify a fallback comparator to use in case the numerical sort
+ * fails. The goal is to behave as close as possible to file managers sorting results.
  * 
  * @author Andrea Vacondio
  *
  */
 public class NumericalSortFilenameComparator implements Comparator<File> {
 
-    public static Logger LOG = LoggerFactory.getLogger(NumericalSortFilenameComparator.class);
-    private Pattern pattern = Pattern.compile("^(\\d*)(.*)$");
+    private static Pattern PATTERN = Pattern.compile("^(\\d*)(\\D*)(\\d*)$");
 
-    private Function<File, BigInteger> leadingDigits = (f) -> {
-        if (nonNull(f)) {
-            Matcher matcher = pattern.matcher(f.getName().toLowerCase());
-            if (matcher.matches()) {
-                return Optional.of(matcher.group(1)).filter(StringUtils::isNotEmpty).map(BigInteger::new).orElse(null);
+    private static Function<String, BigInteger> DIGITS_EXTRACTOR = (g) -> {
+        return ofNullable(g).filter(StringUtils::isNotEmpty).map(BigInteger::new).orElse(null);
+    };
+
+    private static Comparator<String> BIG_INT_COMPARATOR = (a, b) -> {
+        BigInteger bigA = DIGITS_EXTRACTOR.apply(a);
+        BigInteger bigB = DIGITS_EXTRACTOR.apply(b);
+        if (nonNull(bigA) && nonNull(bigB)) {
+            return bigA.compareTo(bigB);
+        }
+        return 0;
+    };
+
+    private static Comparator<String> STRING_COMPARATOR = (a, b) -> {
+        if (StringUtils.isNotEmpty(a) && StringUtils.isNotEmpty(b)) {
+            return a.compareToIgnoreCase(b);
+        }
+        return 0;
+    };
+
+    private static String basename(File file) {
+        if (nonNull(file)) {
+            String filename = file.getName();
+            int index = filename.lastIndexOf('.');
+            if (index > 0) {
+                return filename.substring(0, index);
+            }
+            if (StringUtils.isNotEmpty(filename)) {
+                return filename;
             }
         }
         return null;
-    };
+    }
+
+    private static Comparator<Matcher> MATCHER_COMPARATOR = comparing((Matcher m) -> m.group(1), BIG_INT_COMPARATOR)
+            .thenComparing(comparing(m -> m.group(2), STRING_COMPARATOR))
+            .thenComparing(comparing(m -> m.group(3), BIG_INT_COMPARATOR));
+
+    private Comparator<File> fallback;
+
+    /**
+     * @param fallback
+     *            the comparator to use when numerical sorting fails. Default is file name case insensitive compare
+     */
+    public NumericalSortFilenameComparator(Comparator<File> fallback) {
+        this.fallback = ofNullable(fallback).orElse(nullsLast(comparing(File::getName, String.CASE_INSENSITIVE_ORDER)));
+    }
+
+    /**
+     * Comparator performing numerical sort with fallback to file name case insensitive compare in case numerical sort fails
+     */
+    public NumericalSortFilenameComparator() {
+        this(null);
+    }
 
     @Override
     public int compare(File a, File b) {
-        try {
-            BigInteger bigA = leadingDigits.apply(a);
-            BigInteger bigB = leadingDigits.apply(b);
-            if (nonNull(bigA) && nonNull(bigB)) {
-                return bigA.compareTo(bigB);
-            }
-        } catch (NumberFormatException | IllegalStateException e) {
-            LOG.warn("Unexpected conversion issue", e);
+        Matcher matcherA = ofNullable(a).map(NumericalSortFilenameComparator::basename).map(PATTERN::matcher)
+                .filter(Matcher::matches).orElse(null);
+        Matcher matcherB = ofNullable(b).map(NumericalSortFilenameComparator::basename).map(PATTERN::matcher)
+                .filter(Matcher::matches).orElse(null);
+        int retVal = nullsLast(MATCHER_COMPARATOR).compare(matcherA, matcherB);
+        if (retVal == 0) {
+            return fallback.compare(a, b);
         }
-        return 0;
+        return retVal;
     }
+
 }
