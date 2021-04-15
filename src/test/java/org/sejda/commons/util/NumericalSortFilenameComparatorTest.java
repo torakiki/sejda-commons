@@ -35,6 +35,15 @@ public class NumericalSortFilenameComparatorTest {
     }
 
     @Test
+    public void onlyDigits() {
+        NumericalSortFilenameComparator victim = new NumericalSortFilenameComparator();
+        assertTrue(victim.compare(new File("123.pdf"), new File("1.pdf")) > 0);
+        assertTrue(victim.compare(new File("0023.pdf"), new File("230.pdf")) < 0);
+        assertTrue(victim.compare(new File("1"), new File("001.pdf")) > 0);
+        assertTrue(victim.compare(new File("005.pdf"), new File("500.pdf")) < 0);
+    }
+
+    @Test
     public void nonDigit() {
         NumericalSortFilenameComparator victim = new NumericalSortFilenameComparator();
         assertTrue(victim.compare(new File("123.pdf"), new File("bla.pdf")) < 0);
@@ -74,5 +83,8 @@ public class NumericalSortFilenameComparatorTest {
         assertTrue(victim.compare(new File("banana.pdf"), new File("avocado.pdf")) > 0);
         assertTrue(victim.compare(new File("chuck.pdf"), new File("chuck.abc")) > 0);
         assertTrue(victim.compare(new File("1234file.pdf"), new File("chuck.abc")) < 0);
+        assertTrue(victim.compare(new File("bla003abc.pdf"), new File("chuck.pdf")) < 0);
     }
+
+
 }

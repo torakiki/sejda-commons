@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  */
 public class NumericalSortFilenameComparator implements Comparator<File> {
 
-    private static Pattern PATTERN = Pattern.compile("^(\\d*)(\\D*)(\\d*)$");
+    private static Pattern PATTERN = Pattern.compile("^(\\d*)(.*)(\\d*)$");
 
     private static Function<String, BigInteger> DIGITS_EXTRACTOR = (g) -> {
         return ofNullable(g).filter(StringUtils::isNotEmpty).map(BigInteger::new).orElse(null);
