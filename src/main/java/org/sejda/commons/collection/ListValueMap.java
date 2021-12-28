@@ -34,7 +34,7 @@ import java.util.Map.Entry;
  */
 public final class ListValueMap<K, V> {
 
-    private Map<K, List<V>> map;
+    private final Map<K, List<V>> map;
 
     public ListValueMap() {
         map = new HashMap<>();

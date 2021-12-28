@@ -21,7 +21,7 @@ import java.util.function.Function;
 /**
  * 
  * @author Andrea Vacondio
- * @see https://stackoverflow.com/questions/48143268/java-tagged-union-sum-types
+ * @see <a href="https://stackoverflow.com/questions/48143268/java-tagged-union-sum-types">Union types</a>
  */
 public abstract class Either<A, B> {
 
@@ -32,7 +32,7 @@ public abstract class Either<A, B> {
     public abstract <C> C either(Function<? super A, ? extends C> left, Function<? super B, ? extends C> right);
 
     public static <A, B> Either<A, B> left(A value) {
-        return new Either<A, B>() {
+        return new Either<>() {
             @Override
             public <C> C either(Function<? super A, ? extends C> left, Function<? super B, ? extends C> right) {
                 return left.apply(value);
@@ -41,7 +41,7 @@ public abstract class Either<A, B> {
     }
 
     public static <A, B> Either<A, B> right(B value) {
-        return new Either<A, B>() {
+        return new Either<>() {
             @Override
             public <C> C either(Function<? super A, ? extends C> left, Function<? super B, ? extends C> right) {
                 return right.apply(value);

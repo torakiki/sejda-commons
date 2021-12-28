@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class LRUMap<K, V> extends LinkedHashMap<K, V> {
 
-    private int maxCapacity;
+    private final int maxCapacity;
 
     public LRUMap(int maxCapacity) {
         super(maxCapacity, 0.75f, true);

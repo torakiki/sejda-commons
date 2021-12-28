@@ -38,13 +38,11 @@ import java.util.regex.Pattern;
  */
 public class NumericalSortFilenameComparator implements Comparator<File> {
 
-    private static Pattern PATTERN = Pattern.compile("^(\\d*)(.*)(\\d*)$");
+    private static final Pattern PATTERN = Pattern.compile("^(\\d*)(.*)(\\d*)$");
 
-    private static Function<String, BigInteger> DIGITS_EXTRACTOR = (g) -> {
-        return ofNullable(g).filter(StringUtils::isNotEmpty).map(BigInteger::new).orElse(null);
-    };
+    private static final Function<String, BigInteger> DIGITS_EXTRACTOR = (g) -> ofNullable(g).filter(StringUtils::isNotEmpty).map(BigInteger::new).orElse(null);
 
-    private static Comparator<String> BIG_INT_COMPARATOR = (a, b) -> {
+    private static final Comparator<String> BIG_INT_COMPARATOR = (a, b) -> {
         BigInteger bigA = DIGITS_EXTRACTOR.apply(a);
         BigInteger bigB = DIGITS_EXTRACTOR.apply(b);
         if (nonNull(bigA) && nonNull(bigB)) {
@@ -53,7 +51,7 @@ public class NumericalSortFilenameComparator implements Comparator<File> {
         return 0;
     };
 
-    private static Comparator<String> STRING_COMPARATOR = (a, b) -> {
+    private static final Comparator<String> STRING_COMPARATOR = (a, b) -> {
         if (isNotEmpty(a) && isNotEmpty(b)) {
             return a.compareToIgnoreCase(b);
         }
@@ -74,11 +72,11 @@ public class NumericalSortFilenameComparator implements Comparator<File> {
         return null;
     }
 
-    private static Comparator<Matcher> MATCHER_COMPARATOR = comparing((Matcher m) -> m.group(1), BIG_INT_COMPARATOR)
-            .thenComparing(comparing(m -> m.group(2), STRING_COMPARATOR))
-            .thenComparing(comparing(m -> m.group(3), BIG_INT_COMPARATOR));
+    private static final Comparator<Matcher> MATCHER_COMPARATOR = comparing((Matcher m) -> m.group(1), BIG_INT_COMPARATOR)
+            .thenComparing(m -> m.group(2), STRING_COMPARATOR)
+            .thenComparing(m -> m.group(3), BIG_INT_COMPARATOR);
 
-    private Comparator<File> fallback;
+    private final Comparator<File> fallback;
 
     /**
      * @param fallback

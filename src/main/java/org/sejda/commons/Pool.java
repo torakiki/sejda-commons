@@ -34,7 +34,7 @@ public class Pool<T> {
     private static final Logger LOG = LoggerFactory.getLogger(Pool.class);
 
     private final ArrayBlockingQueue<T> pool;
-    private Supplier<T> supplier;
+    private final Supplier<T> supplier;
 
     private Optional<Consumer<T>> applyOnGive = Optional.empty();
 

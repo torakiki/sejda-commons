@@ -4,6 +4,7 @@
 .project
 .launch
 .settings/
+.idea/
 target/
 .externalToolBuilders/
 

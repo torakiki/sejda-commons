@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class NullSafeSet<E> implements Set<E> {
 
-    private Set<E> delegate;
+    private final Set<E> delegate;
 
     public NullSafeSet() {
         delegate = new LinkedHashSet<>();

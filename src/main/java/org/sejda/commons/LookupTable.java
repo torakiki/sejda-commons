@@ -30,7 +30,7 @@ import java.util.Set;
  *            type of the items
  */
 public class LookupTable<I> {
-    private Map<I, I> oldToNew = new LinkedHashMap<>();
+    private final Map<I, I> oldToNew = new LinkedHashMap<>();
 
     /**
      * Adds a lookup entry.

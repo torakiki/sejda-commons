@@ -73,9 +73,7 @@ public final class IOUtils {
      */
     public static byte[] toByteArray(InputStream input) throws IOException {
         try (FastByteArrayOutputStream output = new FastByteArrayOutputStream()) {
-            copy(input, output);
-            // java9
-            // input.transferTo(output);
+            input.transferTo(output);
             return output.toByteArray();
         }
     }
@@ -90,10 +88,6 @@ public final class IOUtils {
     public static void copy(InputStream input, OutputStream output) throws IOException {
         requireNotNullArg(input, "Cannot copy a null input");
         requireNotNullArg(output, "Cannot copy to a null output");
-        byte[] buffer = new byte[8192];
-        int read;
-        while ((read = input.read(buffer, 0, 8192)) >= 0) {
-            output.write(buffer, 0, read);
-        }
+        input.transferTo(output);
     }
 }
