@@ -15,17 +15,19 @@
  */
 package org.sejda.commons.util;
 
-import static java.util.Objects.nonNull;
-import static org.sejda.commons.util.RequireUtils.requireNotNullArg;
+import org.sejda.commons.FastByteArrayOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.Consumer;
 
-import org.sejda.commons.FastByteArrayOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
+import static org.sejda.commons.util.RequireUtils.requireNotNullArg;
 
 /**
  * Utility class with I/O related static methods
@@ -40,8 +42,7 @@ public final class IOUtils {
     /**
      * Null safe close of the given {@link Closeable}.
      *
-     * @param closeable
-     *            to be closed
+     * @param closeable to be closed
      * @throws IOException
      */
     public static void close(Closeable closeable) throws IOException {
@@ -53,16 +54,24 @@ public final class IOUtils {
     /**
      * Null safe close of the given {@link Closeable} suppressing any exception.
      *
-     * @param closeable
-     *            to be closed
+     * @param closeable to be closed
      */
     public static void closeQuietly(Closeable closeable) {
+        closeQuietly(closeable, null);
+    }
+
+    /**
+     * Null safe close of the given {@link Closeable} handing the potential exception to the given consumer
+     *
+     * @param closeable to be closed
+     * @param consumer  consumer for the potential {@link Exception}. If null the exception is logged as a warning.
+     */
+    public static void closeQuietly(Closeable closeable, Consumer<IOException> consumer) {
         try {
-            if (nonNull(closeable)) {
-                closeable.close();
-            }
+            close(closeable);
         } catch (IOException ioe) {
-            LOG.warn("An error occured while closing a Closeable resource", ioe);
+            ofNullable(consumer).ifPresentOrElse(c -> c.accept(ioe),
+                    () -> LOG.warn("An error occurred while closing a Closeable resource", ioe));
         }
     }
 
@@ -80,7 +89,7 @@ public final class IOUtils {
 
     /**
      * Copy the input stream data to the output stream
-     * 
+     *
      * @param input
      * @param output
      * @throws IOException

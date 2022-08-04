@@ -80,14 +80,14 @@ public class NumericalSortFilenameComparator implements Comparator<File> {
 
     /**
      * @param fallback
-     *            the comparator to use when numerical sorting fails. Default is file name case insensitive compare
+     *            the comparator to use when numerical sorting fails. Default is file name case-insensitive compare
      */
     public NumericalSortFilenameComparator(Comparator<File> fallback) {
         this.fallback = ofNullable(fallback).orElse(nullsLast(comparing(File::getName, String.CASE_INSENSITIVE_ORDER)));
     }
 
     /**
-     * Comparator performing numerical sort with fallback to file name case insensitive compare in case numerical sort fails
+     * Comparator performing numerical sort with fallback to file name case-insensitive compare in case numerical sort fails
      */
     public NumericalSortFilenameComparator() {
         this(null);

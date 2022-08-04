@@ -55,7 +55,7 @@ public final class ListValueMap<K, V> {
      * @return the List with the input value added
      */
     public List<V> put(K key, V value) {
-        List<V> list = map.get(key);
+        var list = map.get(key);
         if (list == null) {
             list = new ArrayList<>();
         }

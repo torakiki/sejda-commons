@@ -51,7 +51,7 @@ public class StringUtils {
 
     public static String asUnicodes(String in) {
         if (nonNull(in)) {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             for (int offset = 0; offset < in.length();) {
                 int codepoint = in.codePointAt(offset);
                 result.append("\\U+").append(Integer.toHexString(codepoint).toUpperCase());
@@ -68,5 +68,9 @@ public class StringUtils {
 
     public static boolean isNotEmpty(final CharSequence cs) {
         return !isEmpty(cs);
+    }
+
+    public static String normalizeLineEndings(String in) {
+        return in.replaceAll("\\r\\n", "\n");
     }
 }

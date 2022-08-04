@@ -24,7 +24,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  * Simple utility class for working with the reflection API and handling reflection exceptions.
- *
+ * <p>
  * From Springframework
  *
  */
@@ -143,11 +143,11 @@ public final class ReflectionUtils {
      *             the rethrown exception
      */
     public static void rethrowRuntimeException(Throwable ex) {
-        if (ex instanceof RuntimeException) {
-            throw (RuntimeException) ex;
+        if (ex instanceof RuntimeException re) {
+            throw re;
         }
-        if (ex instanceof Error) {
-            throw (Error) ex;
+        if (ex instanceof Error e) {
+            throw e;
         }
         throw new UndeclaredThrowableException(ex);
     }
