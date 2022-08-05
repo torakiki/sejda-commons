@@ -39,7 +39,7 @@ public class LookupTable<I> {
      * @param valueItem
      */
     public void addLookupEntry(I keyItem, I valueItem) {
-        requireNotNullArg(keyItem, "Cannot map a null item");
+        requireNotNullArg(keyItem, "Cannot map a null key");
         requireNotNullArg(valueItem, "Cannot map a null item");
         oldToNew.put(keyItem, valueItem);
 
