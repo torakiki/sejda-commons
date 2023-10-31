@@ -15,15 +15,16 @@
  */
 package org.sejda.commons.util;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.text.Collator;
+import java.util.Locale;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Andrea Vacondio
- *
  */
 public class NumericalSortFilenameComparatorTest {
     @Test
@@ -86,5 +87,29 @@ public class NumericalSortFilenameComparatorTest {
         assertTrue(victim.compare(new File("bla003abc.pdf"), new File("chuck.pdf")) < 0);
     }
 
+    @Test
+    public void mixedLocaleAwareCollatorAsFallback() {
+        var collator = Collator.getInstance(Locale.GERMAN);
+        NumericalSortFilenameComparator victim = new NumericalSortFilenameComparator(collator::compare);
+        assertTrue(victim.compare(new File("0001.pdf"), new File("002.abc")) < 0);
+        assertTrue(victim.compare(new File("002.pdf"), new File("03anders.abc")) < 0);
+        assertTrue(victim.compare(new File("03anders.pdf"), new File("003ängstlich.abc")) < 0);
+        assertTrue(victim.compare(new File("003ängstlich.pdf"), new File("Adele.abc")) < 0);
+        assertTrue(victim.compare(new File("Adele.pdf"), new File("andere.abc")) < 0);
+        assertTrue(victim.compare(new File("andere.pdf"), new File("Ändern.abc")) < 0);
+        assertTrue(victim.compare(new File("Ändern.abc"), new File("Ändern.pdf")) < 0);
+        assertTrue(victim.compare(new File("Ändern.pdf"), new File("anders.pdf")) < 0);
+        assertTrue(victim.compare(new File("anders.pdf"), new File("ängstlich.pdf")) < 0);
+        assertTrue(victim.compare(new File("ängstlich.pdf"), new File("zippy.pdf")) < 0);
+    }
 
+    @Test
+    public void mixedNorwegianLocaleAwareCollatorAsFallback() {
+        var collator = Collator.getInstance(Locale.forLanguageTag("no"));
+        NumericalSortFilenameComparator victim = new NumericalSortFilenameComparator(collator::compare);
+        assertTrue(victim.compare(new File("Adele.pdf"), new File("Banana.abc")) < 0);
+        assertTrue(victim.compare(new File("Banana.pdf"), new File("Ændern.abc")) < 0);
+        assertTrue(victim.compare(new File("Ændern.pdf"), new File("Ønders.abc")) < 0);
+        assertTrue(victim.compare(new File("Ønders.pdf"), new File("Åndere.abc")) < 0);
+    }
 }

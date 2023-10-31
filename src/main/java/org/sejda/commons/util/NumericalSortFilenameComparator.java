@@ -15,6 +15,12 @@
  */
 package org.sejda.commons.util;
 
+import java.io.File;
+import java.math.BigInteger;
+import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsLast;
 import static java.util.Objects.nonNull;
@@ -22,41 +28,81 @@ import static java.util.Optional.ofNullable;
 import static org.sejda.commons.util.StringUtils.isEmpty;
 import static org.sejda.commons.util.StringUtils.isNotEmpty;
 
-import java.io.File;
-import java.math.BigInteger;
-import java.util.Comparator;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
- * Comparator for filenames that performs a numerical sort if the file names start or end with digits. It allows to specify a fallback comparator to use in case the numerical sort
- * fails. The goal is to behave as close as possible to file managers sorting results.
- * 
- * @author Andrea Vacondio
+ * Comparator for filenames that performs a numerical sort if the file names start or end with
+ * digits. It allows to specify a fallback comparator to use in case the numerical sort fails. The
+ * goal is to behave as close as possible to file managers sorting results.
  *
+ * @author Andrea Vacondio
  */
 public class NumericalSortFilenameComparator implements Comparator<File> {
 
-    private static final Pattern PATTERN = Pattern.compile("^(\\d*)(.*)(\\d*)$");
-
-    private static final Function<String, BigInteger> DIGITS_EXTRACTOR = (g) -> ofNullable(g).filter(StringUtils::isNotEmpty).map(BigInteger::new).orElse(null);
+    private static final Pattern DIGITS_PATTERN = Pattern.compile("^(\\d*)(.*)(\\d*)$");
 
     private static final Comparator<String> BIG_INT_COMPARATOR = (a, b) -> {
-        BigInteger bigA = DIGITS_EXTRACTOR.apply(a);
-        BigInteger bigB = DIGITS_EXTRACTOR.apply(b);
+        var bigA = toBigInteger(a);
+        var bigB = toBigInteger(b);
         if (nonNull(bigA) && nonNull(bigB)) {
             return bigA.compareTo(bigB);
         }
         return 0;
     };
 
-    private static final Comparator<String> STRING_COMPARATOR = (a, b) -> {
+    private final Comparator<Matcher> digitsPatternMatcherComparator = comparing((Matcher m) -> m.group(1),
+            BIG_INT_COMPARATOR).thenComparing(m -> m.group(2), this::stringCompare)
+            .thenComparing(m -> m.group(3), BIG_INT_COMPARATOR);
+
+    private final Comparator<String> fallback;
+
+    /**
+     * @param fallback the comparator to use when numerical sorting fails. Default is file name
+     *                 case-insensitive compare
+     */
+    public NumericalSortFilenameComparator(Comparator<String> fallback) {
+        this.fallback = ofNullable(fallback).orElse(nullsLast(String.CASE_INSENSITIVE_ORDER));
+    }
+
+    /**
+     * Comparator performing numerical sort with fallback to file name case-insensitive compare in
+     * case numerical sort fails
+     */
+    public NumericalSortFilenameComparator() {
+        this(null);
+    }
+
+    @Override
+    public int compare(File a, File b) {
+        Matcher m1 = ofNullable(a).map(NumericalSortFilenameComparator::basename).map(DIGITS_PATTERN::matcher)
+                .filter(Matcher::matches).orElse(null);
+        Matcher m2 = ofNullable(b).map(NumericalSortFilenameComparator::basename).map(DIGITS_PATTERN::matcher)
+                .filter(Matcher::matches).orElse(null);
+
+        if (nonNull(m1) && nonNull(m2) && (isEmpty(m1.group(1)) ^ isEmpty(m2.group(1)))) {
+            // one start with digits the other doesn't, we can just go with the fallback
+            return fallback.compare(name(a), name(b));
+        }
+
+        int retVal = nullsLast(digitsPatternMatcherComparator).compare(m1, m2);
+        if (retVal == 0) {
+            // from the numerical sort of point of view they are equivalent (ex. 001banana.pdf and 1banana.pdf)
+            return fallback.compare(name(a), name(b));
+        }
+        return retVal;
+    }
+
+    private int stringCompare(String a, String b) {
         if (isNotEmpty(a) && isNotEmpty(b)) {
-            return a.compareToIgnoreCase(b);
+            return this.fallback.compare(a, b);
         }
         return 0;
-    };
+    }
+
+    private static BigInteger toBigInteger(String value) {
+        if (isNotEmpty(value)) {
+            return new BigInteger(value);
+        }
+        return null;
+    }
 
     private static String basename(File file) {
         if (nonNull(file)) {
@@ -72,45 +118,7 @@ public class NumericalSortFilenameComparator implements Comparator<File> {
         return null;
     }
 
-    private static final Comparator<Matcher> MATCHER_COMPARATOR = comparing((Matcher m) -> m.group(1), BIG_INT_COMPARATOR)
-            .thenComparing(m -> m.group(2), STRING_COMPARATOR)
-            .thenComparing(m -> m.group(3), BIG_INT_COMPARATOR);
-
-    private final Comparator<File> fallback;
-
-    /**
-     * @param fallback
-     *            the comparator to use when numerical sorting fails. Default is file name case-insensitive compare
-     */
-    public NumericalSortFilenameComparator(Comparator<File> fallback) {
-        this.fallback = ofNullable(fallback).orElse(nullsLast(comparing(File::getName, String.CASE_INSENSITIVE_ORDER)));
+    private static String name(File file) {
+        return ofNullable(file).map(File::getName).orElse(null);
     }
-
-    /**
-     * Comparator performing numerical sort with fallback to file name case-insensitive compare in case numerical sort fails
-     */
-    public NumericalSortFilenameComparator() {
-        this(null);
-    }
-
-    @Override
-    public int compare(File a, File b) {
-        Matcher m1 = ofNullable(a).map(NumericalSortFilenameComparator::basename).map(PATTERN::matcher)
-                .filter(Matcher::matches).orElse(null);
-        Matcher m2 = ofNullable(b).map(NumericalSortFilenameComparator::basename).map(PATTERN::matcher)
-                .filter(Matcher::matches).orElse(null);
-
-        if (nonNull(m1) && nonNull(m2) && (isEmpty(m1.group(1)) ^ isEmpty(m2.group(1)))) {
-            // one start with digits the other doesn't, we can just go with the fallback
-            return fallback.compare(a, b);
-        }
-
-        int retVal = nullsLast(MATCHER_COMPARATOR).compare(m1, m2);
-        if (retVal == 0) {
-            // from the numerical sort of point of view they are equivalent (ex. 001banana.pdf and 1banana.pdf)
-            return fallback.compare(a, b);
-        }
-        return retVal;
-    }
-
 }
